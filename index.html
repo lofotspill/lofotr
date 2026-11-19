@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="utf-8">
+<title>Lofotr – Røstnesvåg fiskevær</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2a33; font-family: Georgia, 'Times New Roman', serif; color: #f3efe4; }
+  canvas { display: block; }
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #dot { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 3px rgba(0,0,0,.6); }
+  #prompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); padding: 8px 16px; background: rgba(20,28,34,.72); border-radius: 6px; font-size: 18px; opacity: 0; transition: opacity .15s; }
+  #prompt.on { opacity: 1; }
+  #prompt b { background: #f3efe4; color: #1b2a33; padding: 1px 8px; border-radius: 4px; margin-right: 8px; }
+  #help { position: absolute; left: 14px; bottom: 12px; font-size: 14px; line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,.8); opacity: .85; }
+  #title { position: absolute; left: 16px; top: 12px; font-size: 20px; letter-spacing: .5px; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+  #title small { display: block; font-size: 13px; opacity: .8; font-style: italic; }
+  #card { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(560px, 86vw); padding: 24px 30px; background: rgba(243,236,218,.97); color: #2a2520; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,.5); display: none; }
+  #card.on { display: block; }
+  #card h2 { margin: 0 0 10px; font-size: 26px; color: #1f2d57; }
+  #card p { margin: 8px 0; font-size: 18px; line-height: 1.45; }
+  #card .hint { margin-top: 14px; font-size: 14px; opacity: .65; }
+  #start { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, rgba(27,42,51,.55), rgba(10,16,20,.9)); text-align: center; cursor: pointer; }
+  #start h1 { font-size: 64px; margin: 0; letter-spacing: 6px; font-weight: normal; }
+  #start p { max-width: 560px; font-size: 19px; line-height: 1.5; opacity: .9; }
+  #start .go { margin-top: 18px; padding: 12px 28px; font-size: 22px; background: #f3efe4; color: #1b2a33; border-radius: 6px; }
+  #start .keys { font-size: 15px; opacity: .75; margin-top: 18px; }
+  #toast { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); font-size: 22px; text-shadow: 0 2px 6px rgba(0,0,0,.8); opacity: 0; transition: opacity .6s; }
+  #toast.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <div id="title">Lofotr<small>Røstnesvåg fiskevær</small></div>
+  <div id="dot"></div>
+  <div id="prompt"><b>E</b><span id="plabel"></span></div>
+  <div id="toast"></div>
+  <div id="card"><h2 id="ctitle"></h2><div id="cbody"></div><div class="hint">Trykk E for å lukke</div></div>
+  <div id="help">WASD – gå &nbsp;·&nbsp; Shift – spring &nbsp;·&nbsp; Mus – sjå seg om &nbsp;·&nbsp; E – les / snakk &nbsp;·&nbsp; T – dag / kveld &nbsp;·&nbsp; M – lyd &nbsp;·&nbsp; Esc – pause</div>
+</div>
+<div id="start">
+  <h1>LOFOTR</h1>
+  <p>Røstnesvåg fiskevær. Eit lite tettstad i havgapet, der vêret rår og alt skal gå føre seg på nynorsk.</p>
+  <div class="go" id="go">Lastar …</div>
+  <div class="keys">Spelet er laga for PC med tastatur og mus.</div>
+</div>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js" } }
+</script>
+<script type="module" src="./js/main.js"></script>
+</body>
+</html>
