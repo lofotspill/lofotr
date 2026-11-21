@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="nn">
 <head>
+<meta name="lofotr-versjon" content="v58">
 <meta charset="utf-8">
 <title>Lofotr Fiskevær</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -98,6 +99,8 @@
   #utro .dato { font-size: 14px; opacity: .75; margin: 4px 0 10px; }
   #utro button { font: inherit; font-size: 16px; margin: 4px 6px 0; padding: 6px 16px; color: #f3ead2; background: #5a1f14; border: 1px solid #2f0f08; border-radius: 3px; cursor: pointer; }
   #utro button.lys { color: #5a1f14; background: transparent; border-color: #5a1f14; }
+  #utro .lg { min-height: 20px; font-size: 14px; margin: 6px 0 4px; }
+  #utro button:disabled { opacity: .55; cursor: default; }
   #utro .meir { font-size: 14px; opacity: .7; margin-top: 10px; }
   #toast { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); font-size: 22px; text-shadow: 0 2px 6px rgba(0,0,0,.8); opacity: 0; transition: opacity .6s; }
   #toast.on { opacity: 1; }
@@ -142,10 +145,10 @@
     </table>
     <div class="nm">Namn: <input id="u_namn" type="text" maxlength="30" autocomplete="off" placeholder="Skriv namnet ditt"></div>
     <div class="dato" id="u_dato"></div>
+    <button id="u_lagre">Lagre resultatet</button><div class="lg" id="u_lg"></div>
     <button id="u_att" class="lys">Gå rundt i bygda</button><button id="u_ny" class="lys">Spel frå byrjinga</button>
     <div class="meir">Takk for spelinga! Meir kjem seinare.</div>
   </div></div>
 
 
-<script src="spel1.js"></script><script src="spel2.js"></script><script src="spel3.js"></script><script>(function(){var s=document.createElement('script');s.textContent=window.__SPEL.join('');window.__SPEL=null;document.body.appendChild(s);})();</script></body>
-</html>
+<script src="spel1.js?v=58"></script><script src="spel2.js?v=58"></script><script src="spel3.js?v=58"></script><script>(function(){var s=document.createElement('script');s.textContent=window.__SPEL.join('');window.__SPEL=null;document.body.appendChild(s);})();</script></body></html>
