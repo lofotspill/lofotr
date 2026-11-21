@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="nn">
+<head>
+<meta charset="utf-8">
+<title>Lofotr Fiskevær</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1b2a33; font-family: Georgia, 'Times New Roman', serif; color: #f3efe4; }
+  canvas { display: block; }
+  #hud { position: fixed; inset: 0; pointer-events: none; }
+  #dot { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(255,255,255,.7); box-shadow: 0 0 3px rgba(0,0,0,.6); }
+  #prompt { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); padding: 8px 16px; background: rgba(20,28,34,.72); border-radius: 6px; font-size: 18px; opacity: 0; transition: opacity .15s; }
+  #prompt.on { opacity: 1; }
+  #prompt b { background: #f3efe4; color: #1b2a33; padding: 1px 8px; border-radius: 4px; margin-right: 8px; }
+  #help { position: absolute; left: 14px; bottom: 12px; font-size: 14px; line-height: 1.5; text-shadow: 0 1px 3px rgba(0,0,0,.8); opacity: .85; }
+  #title { position: absolute; left: 16px; top: 12px; font-size: 20px; letter-spacing: .5px; text-shadow: 0 1px 4px rgba(0,0,0,.8); }
+  #title small { display: block; font-size: 13px; opacity: .8; font-style: italic; }
+  #card { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(560px, 86vw); padding: 24px 30px; background: rgba(243,236,218,.97); color: #2a2520; border-radius: 6px; box-shadow: 0 10px 40px rgba(0,0,0,.5); display: none; }
+  #card.on { display: block; }
+  #card h2 { margin: 0 0 10px; font-size: 26px; color: #1f2d57; }
+  #card p { margin: 8px 0; font-size: 18px; line-height: 1.45; }
+  #card .hint { margin-top: 14px; font-size: 14px; opacity: .65; }
+  #journal { position: absolute; left: 14px; top: 88px; width: 236px; padding: 16px 16px 12px 18px; color: #3a2a18; font-family: 'Segoe Script','Bradley Hand','Brush Script MT','Lucida Handwriting',Georgia,serif; font-size: 15px; line-height: 1.35; transform: rotate(-1.4deg); opacity: 0; transition: opacity .5s; pointer-events: none;
+    background: radial-gradient(ellipse at 30% 20%, #efe0b4 0%, #e4cf9a 55%, #d3b980 100%); box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 0 28px rgba(120,80,30,.35);
+    clip-path: polygon(0 1.2%, 6% 0, 14% 1.4%, 25% 0.3%, 38% 1.2%, 52% 0, 66% 1.3%, 80% 0.2%, 93% 1.1%, 100% 0, 99.2% 14%, 100% 30%, 99% 50%, 100% 72%, 99.3% 90%, 100% 100%, 90% 99%, 76% 100%, 60% 98.9%, 44% 100%, 28% 99%, 12% 100%, 0 99.3%, 0.8% 82%, 0 60%, 1% 38%, 0 18%); }
+  #journal.on { opacity: .96; }
+  #journal h3 { margin: 0 0 6px; font-size: 20px; text-align: center; letter-spacing: 1px; border-bottom: 1px solid rgba(90,60,25,.45); padding-bottom: 4px; }
+  #journal h4 { margin: 8px 0 4px; font-size: 16px; color: #5a1f14; }
+  #journal ul { list-style: none; margin: 0; padding: 0; }
+  #journal li { display: flex; gap: 8px; margin: 3px 0; }
+  #journal .box { flex: 0 0 15px; height: 15px; margin-top: 3px; border: 1.5px solid #5a3b1c; border-radius: 2px; font-size: 14px; line-height: 14px; text-align: center; color: #2f5a2a; }
+  #journal li.done { opacity: .6; text-decoration: line-through; text-decoration-color: rgba(60,40,20,.7); }
+  #journal .foot { margin-top: 8px; font-size: 11px; opacity: .55; text-align: right; }
+  #journal .fakta { margin-top: 10px; padding-top: 6px; border-top: 1px dashed rgba(90,60,25,.5); font-size: 13px; line-height: 1.25; }
+  #journal li.next span:last-child { font-weight: bold; color: #5a1f14; }
+  #journal .fakta h5 { margin: 0 0 3px; font-size: 13px; color: #5a1f14; font-weight: normal; letter-spacing: .5px; }
+  #journal .fakta ul { list-style: none; padding: 0; margin: 0; } #journal .fakta li { margin: 2px 0; padding-left: 8px; border-left: 2px solid rgba(90,31,20,.4); }
+
+  #dlg { position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); width: min(760px, 92vw); display: none; z-index: 20; }
+  #dlg.on { display: block; }
+  #dlg .box { position: relative; padding: 26px 30px 16px 30px; color: #2f2212; border-radius: 4px 6px 5px 4px; box-shadow: 0 10px 36px rgba(0,0,0,.55), inset 0 0 40px rgba(120,80,30,.28);
+    background: radial-gradient(ellipse at 30% 20%, rgba(250,243,222,.98), rgba(232,216,178,.97)); border: 1px solid rgba(90,60,25,.55); }
+  #dlg #dname { position: absolute; left: 22px; top: -17px; padding: 5px 18px 6px; font-family: 'Segoe Script','Bradley Hand','Brush Script MT','Lucida Handwriting',Georgia,serif; font-size: 20px; color: #f3ead2; background: #5a1f14; border: 1px solid #2f0f08; border-radius: 3px; box-shadow: 0 3px 8px rgba(0,0,0,.4); letter-spacing: .5px; }
+  #dlg #dtxt { font-size: 19px; line-height: 1.5; min-height: 58px; }
+  #dlg #dtxt p { margin: 6px 0; }
+  #dlg #dtxt .lapp { font-family: 'Segoe Script','Bradley Hand','Lucida Handwriting',Georgia,serif; font-size: 18px; }
+  #dlg #dtxt .telegram { font-family: 'Courier New', monospace; letter-spacing: 1px; background: rgba(60,40,20,.08); padding: 10px 12px; border: 1px dashed rgba(60,40,20,.5); }
+  #dlg #dtxt .tell { font-style: italic; opacity: .85; }
+  #dlg .alt { display: flex; gap: 12px; align-items: baseline; margin: 7px 0; padding: 8px 14px; background: rgba(90,31,20,.07); border: 1px solid rgba(90,60,25,.4); border-radius: 3px; font-size: 18px; }
+  #dlg .alt b { flex: 0 0 24px; height: 24px; line-height: 22px; text-align: center; border: 1.5px solid #5a1f14; border-radius: 50%; color: #5a1f14; font-size: 15px; }
+  #dlg .spq { font-weight: bold; margin-bottom: 6px; }
+  #dlg .hint2 { font-size: 16px; font-style: italic; color: #7a2a14; min-height: 20px; }
+  #dlg #dfoot { margin-top: 8px; text-align: right; font-size: 13px; font-style: italic; opacity: .6; }
+  #card .side { margin-top: 14px; text-align: center; font-size: 13px; opacity: .6; font-style: italic; }
+  #card .tale b { color: #5a1f14; } #card .lapp { font-family: 'Segoe Script','Bradley Hand','Lucida Handwriting',Georgia,serif; font-size: 17px; line-height: 1.45; }
+  #card .telegram { font-family: 'Courier New', monospace; letter-spacing: 1px; background: rgba(60,40,20,.08); padding: 10px 12px; border: 1px dashed rgba(60,40,20,.5); }
+  #card .val { padding: 6px 10px; background: rgba(31,45,87,.08); border-radius: 4px; }
+  #card .val b { display: inline-block; min-width: 22px; color: #1f2d57; }
+  #card .hint2 { font-size: 15px; opacity: .65; font-style: italic; }
+  #start { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, rgba(27,42,51,.55), rgba(10,16,20,.9)); text-align: center; cursor: pointer; }
+  #start h1 { font-size: 64px; margin: 0; letter-spacing: 6px; font-weight: normal; }
+  #start p { max-width: 560px; font-size: 19px; line-height: 1.5; opacity: .9; }
+  #start .go { margin-top: 18px; padding: 12px 28px; font-size: 22px; background: #f3efe4; color: #1b2a33; border-radius: 6px; }
+  #start .keys { font-size: 15px; opacity: .75; margin-top: 18px; }
+  #toast { position: absolute; left: 50%; top: 14%; transform: translateX(-50%); font-size: 22px; text-shadow: 0 2px 6px rgba(0,0,0,.8); opacity: 0; transition: opacity .6s; }
+  #toast.on { opacity: 1; }
+  canvas:not(#grain) { filter: saturate(1.02) contrast(0.92) brightness(1.04); }
+  body.lowq canvas:not(#grain) { filter: none; }
+  #grain { width: 100%; height: 100%; }
+  #hud { z-index: 5; } #start { z-index: 10; }
+  #fx { position: fixed; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0) 50%, rgba(20,28,44,.30) 100%),
+                linear-gradient(to bottom, rgba(214,222,232,.14), rgba(214,222,232,0) 40%); }
+  #haze { position: fixed; inset: 0; pointer-events: none; z-index: 2; background: rgba(205,214,230,.07); mix-blend-mode: screen; }
+  #grain { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: .035; mix-blend-mode: overlay; }
+</style>
+</head>
+<body>
+<div id="fx"></div><div id="haze"></div><canvas id="grain" width="256" height="256"></canvas>
+<div id="hud">
+  <div id="title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.6 -0.55 8.5 2.9" height="26" width="76.2" role="img" aria-label="LOFOTR" style="display:inline-block;vertical-align:middle"><path d="M0.200 0.000L0.200 2.000L0.850 2.000M1.250 1.000L1.700 0.000L2.150 1.000L1.700 2.000ZM2.700 0.000L2.700 2.000M2.700 0.450L3.300 0.000M2.700 1.150L3.200 0.750M3.750 1.000L4.200 0.000L4.650 1.000L4.200 2.000ZM5.050 0.000L5.950 0.000M5.500 0.000L5.500 2.000M6.500 0.000L6.500 2.000M6.500 0.000L7.150 0.500L6.500 1.050M6.750 1.000L7.200 2.000" fill="none" stroke="#f3e9d2" stroke-width="0.24" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt"/></svg></div>
+  <div id="dot"></div>
+  <div id="prompt"><b>E</b><span id="plabel"></span></div>
+  <div id="journal"></div>
+  <div id="toast"></div>
+  <div id="dlg"><div class="box"><div id="dname"></div><div id="dtxt"></div><div id="dfoot"></div></div></div>
+  <div id="card"><h2 id="ctitle"></h2><div id="cbody"></div><div class="hint">Trykk E for å lukke</div></div>
+  <div id="help">WASD: gå &nbsp;·&nbsp; Shift: spring &nbsp;·&nbsp; Mus: sjå seg om &nbsp;·&nbsp; E: les / snakk &nbsp;·&nbsp; J: oppdrag &nbsp;·&nbsp; Esc: pause</div>
+</div>
+<div id="start">
+  <h1><svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.6 -0.55 8.7 2.9" height="84" width="252.0" role="img" aria-label="LOFOTR" style="display:inline-block;vertical-align:middle"><path d="M0.200 0.000L0.200 2.000L0.850 2.000M1.290 1.000L1.740 0.000L2.190 1.000L1.740 2.000ZM2.780 0.000L2.780 2.000M2.780 0.450L3.380 0.000M2.780 1.150L3.280 0.750M3.870 1.000L4.320 0.000L4.770 1.000L4.320 2.000ZM5.210 0.000L6.110 0.000M5.660 0.000L5.660 2.000M6.700 0.000L6.700 2.000M6.700 0.000L7.350 0.500L6.700 1.050M6.950 1.000L7.400 2.000" fill="none" stroke="#f3e9d2" stroke-width="0.2" stroke-linejoin="miter" stroke-miterlimit="10" stroke-linecap="butt"/></svg></h1>
+  <div class="go" id="go">Lastar …</div>
+</div>
+
+
+<script src="spel1.js"></script>
+<script src="spel2.js"></script>
+<script src="spel3.js"></script>
+<script>(function(){var s=document.createElement('script');s.textContent=window.__SPEL.join('');window.__SPEL=null;document.body.appendChild(s);})();</script>
+</body>
+</html>
